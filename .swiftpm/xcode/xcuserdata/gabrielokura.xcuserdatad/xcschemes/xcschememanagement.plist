@@ -22,6 +22,16 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>AppModule</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>wwdc-2023-app</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>wwdc-2023-app.swiftpm</key>
 		<dict>
 			<key>primary</key>
