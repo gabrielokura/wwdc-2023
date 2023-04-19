@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "alien_explosion_3.png",
+      "filename" : "alien_explosion_3.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "alien_explosion_3@2x.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "alien_explosion_3@3x.heic",
       "idiom" : "universal",
       "scale" : "3x"
     }

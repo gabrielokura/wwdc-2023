@@ -1,11 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "Botoes.png",
+      "filename" : "Botoes.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "Botoes@2x.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },

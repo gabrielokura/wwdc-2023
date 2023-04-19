@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "light.png",
+      "filename" : "light.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "light@2x.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "light@3x.heic",
       "idiom" : "universal",
       "scale" : "3x"
     }

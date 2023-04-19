@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "dialogue6.png",
+      "filename" : "dialogue6.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "dialogue6@2x.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "dialogue6@3x.heic",
       "idiom" : "universal",
       "scale" : "3x"
     }

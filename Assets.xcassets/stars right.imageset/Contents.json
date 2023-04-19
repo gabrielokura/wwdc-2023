@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "stars right.png",
+      "filename" : "stars right.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "stars right@2x.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "stars right@3x.heic",
       "idiom" : "universal",
       "scale" : "3x"
     }

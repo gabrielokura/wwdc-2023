@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "joystick right.png",
+      "filename" : "joystick right.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "joystick right@2x.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "joystick right@3x.heic",
       "idiom" : "universal",
       "scale" : "3x"
     }

@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Alien1_idle.png",
+      "filename" : "Alien1_idle.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "Alien1_idle@2x.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "Alien1_idle@3x.heic",
       "idiom" : "universal",
       "scale" : "3x"
     }

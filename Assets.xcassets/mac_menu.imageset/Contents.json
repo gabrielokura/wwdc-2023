@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "mac_menu.png",
+      "filename" : "mac_menu.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "mac_menu@2x.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "mac_menu@3x.heic",
       "idiom" : "universal",
       "scale" : "3x"
     }
