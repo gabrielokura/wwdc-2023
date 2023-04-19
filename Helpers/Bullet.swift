@@ -10,7 +10,7 @@ import SceneKit
 class Bullet: SCNNode {
     override init () {
         super.init()
-        let sphere = SCNSphere(radius: 0.025)
+        let sphere = SCNSphere(radius: 0.03)
         self.geometry = sphere
         let shape = SCNPhysicsShape(geometry: sphere, options: nil)
         self.physicsBody = SCNPhysicsBody(type: .dynamic, shape: shape)
@@ -24,7 +24,7 @@ class Bullet: SCNNode {
         
         // add texture
         let material = SCNMaterial()
-        material.diffuse.contents = UIColor.red
+        material.diffuse.contents = UIColor.black
         self.geometry?.materials  = [material]
     }
     

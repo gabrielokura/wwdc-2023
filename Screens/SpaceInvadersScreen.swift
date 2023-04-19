@@ -41,6 +41,8 @@ class SpaceInvadersScreen: SKScene, SKSceneDelegate, SKPhysicsContactDelegate {
     var canMoveAliens = false
     var isMovingAliens = false
     
+    var orientationValue = 0
+    
     override func didMove(to view: SKView) {
         setupAliensList()
         setupLimits()
@@ -52,6 +54,8 @@ class SpaceInvadersScreen: SKScene, SKSceneDelegate, SKPhysicsContactDelegate {
         setupHintTextAnimation()
         
         self.physicsWorld.contactDelegate = self
+        
+        orientationValue = UIDevice.current.orientation.rawValue
     }
     
     func setupIpadHint() {
@@ -260,12 +264,10 @@ extension SpaceInvadersScreen {
         
         if dialogues.isShowing {
             dialogues.nextDialogue()
-            
             if dialogues.phase == .learningAccelerometer {
                 setupIpadHint()
-                player.startAccelerometers()
+                player.startAccelerometers(orientationValue == 4 ? false : true)
             }
-            
             return
         }
         

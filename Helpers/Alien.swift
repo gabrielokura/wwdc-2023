@@ -139,8 +139,29 @@ class ARAlien {
         
         // add texture
         let material = SCNMaterial()
-        material.diffuse.contents = UIColor(.red)
-        alienNode.geometry?.materials  = [material, material, material, material, material, material]
+        let red: SCNMaterial  = SCNMaterial()
+        red.diffuse.contents = UIColor(.red)
+        let black: SCNMaterial  = SCNMaterial()
+        red.diffuse.contents = UIColor(.black)
+        
+        let randomInt = Int.random(in: 1...5)
+        
+        switch randomInt {
+        case 1:
+            material.diffuse.contents = UIColor(.blue)
+        case 2:
+            material.diffuse.contents = UIColor(.yellow)
+        case 3:
+            material.diffuse.contents = UIColor(.green)
+        case 4:
+            material.diffuse.contents = UIColor(.cyan)
+        case 5:
+            material.diffuse.contents = UIColor(.white)
+        default:
+            material.diffuse.contents = UIColor(.red)
+        }
+        alienNode.childNodes.first?.geometry?.materials  = [material, red, black]
+        alienNode.light = SCNLight()
         
         node = alienNode
     }

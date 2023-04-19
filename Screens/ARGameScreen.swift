@@ -8,35 +8,29 @@
 import SceneKit
 import ARKit
 import SwiftUI
+import Combine
 
 struct ARSpaceInvadersViewRepresentable: UIViewControllerRepresentable {
-    var gameManger: ARManager!
-    
-    init(gameManger: ARManager!) {
-        self.gameManger = gameManger
-    }
     
     func makeUIViewController(context: Context) -> some ARSpaceInvadersController {
         let controller = ARSpaceInvadersController()
-        controller.gameManager = gameManger
         return controller
     }
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-        
     }
 }
 
 class ARSpaceInvadersController: UIViewController {
     var sceneView: ARSCNView!
-    var tracking = true
-    var trackerNode: SCNNode?
     var planeNode: SCNNode?
-    var foundSurface = false
     var alien: ARAlien!
     var player: ARPlayer!
+    var isPlaying = false
+    var score = 0
     
-    var gameManager: ARManager?
+    
+    var arManager: ARManager?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,7 +70,7 @@ class ARSpaceInvadersController: UIViewController {
     
     fileprivate func setupScene() {
         // Set the view's delegate
-        sceneView.delegate = self
+//        sceneView.delegate = self
         sceneView.session.delegate = self
         
         // Show statistics such as fps and timing information
@@ -91,22 +85,19 @@ class ARSpaceInvadersController: UIViewController {
         
         // load alien model and
         alien = ARAlien()
+        
+        // subscribe to manager actions
+        subscribeToActions()
     }
     
     var strength = CGFloat(10)
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if tracking {
-            //Set up the scene
-            guard foundSurface else { return }
-            trackerNode?.removeFromParentNode()
-            print("adding new container")
-            addContainer()
-            sceneView.scene.physicsWorld.contactDelegate = self
-            tracking = false
-        } else {
-            fire()
+        if !isPlaying {
+            return
         }
+        
+        fire()
     }
     
     func addContainer() {
@@ -117,24 +108,49 @@ class ARSpaceInvadersController: UIViewController {
             return
         }
         backBoardNode.isHidden = false
-//        sceneView.scene.rootNode.addChildNode(backBoardNode)
-        //        resetGame()
         addPlayer()
-        addNewAlien()
+        addInitialAlien()
+    }
+    
+    func startGame() {
+        isPlaying = true
+        addContainer()
+        sceneView.scene.physicsWorld.contactDelegate = self
+    }
+    
+    private var cancellable = Set<AnyCancellable>()
+    
+    func subscribeToActions() {
+        print("subscribing...")
+        
+        ARManager.shared.actionStream.sink { action in
+            print("action \(action)")
+            self.startGame()
+        }
+        .store(in: &cancellable)
+    }
+    
+    func addInitialAlien() {
+        let alienNode = ARAlien().node!
+        
+        print("First alien")
+        
+        let posX = Float(0)
+        let posY = getCameraPosition().y - 0.1
+        alienNode.position = SCNVector3(posX, posY, -2)
+        alienNode.physicsBody?.charge = 0
+        sceneView.scene.rootNode.addChildNode(alienNode)
         
     }
     
     func addNewAlien() {
-//        let alienNode = alien.node.clone()
         let alienNode = ARAlien().node!
         
         print("alien node category \(alienNode.physicsBody?.categoryBitMask ?? 99)")
         
-//        let posX = floatBetween(-0.5, and: 0.5)
-        let posX = Float(0)
-//        let posY = floatBetween(-0.5, and: 0.5)
-        let posY = Float(0)
-        alienNode.position = SCNVector3(posX, posY, -2) // SceneKit/AR coordinates are in meters
+        let posX = getCameraPosition().x + floatBetween(-2, and: 2)
+        let posY = getCameraPosition().y - 0.1
+        alienNode.position = SCNVector3(posX, posY, -4) // SceneKit/AR coordinates are in meters
         sceneView.scene.rootNode.addChildNode(alienNode)
         
 //        self.directNodeTowardCamera(alienNode)
@@ -142,25 +158,12 @@ class ARSpaceInvadersController: UIViewController {
     
     func addPlayer() {
         let playerNode = ARPlayer()
-//        playerNode.position = self.getCameraPosition()
+        playerNode.position = self.getCameraPosition()
         sceneView.scene.rootNode.addChildNode(playerNode)
         self.player = playerNode
     }
         
-    func floatBetween(_ first: Float,  and second: Float) -> Float { // random float between upper and lower bound (inclusive)
-        return (Float(arc4random()) / Float(UInt32.max)) * (first - second) + second
-    }
     
-    func getUserVector() -> (SCNVector3, SCNVector3) { // (direction, position)
-        if let frame = self.sceneView.session.currentFrame {
-            let mat = SCNMatrix4(frame.camera.transform) // 4x4 transform matrix describing camera in world space
-            let dir = SCNVector3(-1 * mat.m31, -1 * mat.m32, -1 * mat.m33) // orientation of camera in world space
-            let pos = SCNVector3(mat.m41, mat.m42, mat.m43) // location of camera in world space
-            
-            return (dir, pos)
-        }
-        return (SCNVector3(0, 0, -1), SCNVector3(0, 0, -0.2))
-    }
     
     func removeNodeWithAnimation(_ node: SCNNode, explosion: Bool) {
         // remove node
@@ -174,7 +177,7 @@ class ARSpaceInvadersController: UIViewController {
         let (direction, position) = self.getUserVector()
         bulletsNode.position = position // SceneKit/AR coordinates are in meters
         
-        let bulletDirection = direction
+        let bulletDirection = SCNVector3(x: direction.x * 2, y: direction.y * 2, z: direction.z * 2)
         bulletsNode.physicsBody?.applyForce(bulletDirection, asImpulse: true)
         sceneView.scene.rootNode.addChildNode(bulletsNode)
         
@@ -186,33 +189,6 @@ class ARSpaceInvadersController: UIViewController {
     
 }
 
-
-extension ARSpaceInvadersController: ARSCNViewDelegate {
-    
-    func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-        DispatchQueue.main.async {
-            guard self.tracking else { return }
-            //            let hitTest = self.sceneView.hitTest(CGPoint(x: self.view.frame.midX, y: self.view.frame.midY), types: .featurePoint)
-            guard let hitTest = self.sceneView.raycastQuery(from: CGPoint(x: self.view.frame.midX, y: self.view.frame.midY), allowing: .existingPlaneInfinite, alignment: .horizontal) else { return }
-            
-            let results = self.sceneView.session.raycast(hitTest)
-            guard let hitTestResult = results.first else { return }
-            let translation = SCNMatrix4(hitTestResult.worldTransform)
-            let position = SCNVector3Make(translation.m41, translation.m42, translation.m43)
-            if self.trackerNode == nil { //1
-                let plane = SCNPlane(width: 0.15, height: 0.15)
-                plane.firstMaterial?.diffuse.contents = UIImage(named: "tracker.png")
-                plane.firstMaterial?.isDoubleSided = true
-                self.trackerNode = SCNNode(geometry: plane) //2
-                self.trackerNode?.eulerAngles.x = -.pi * 0.5 //3
-                self.sceneView.scene.rootNode.addChildNode(self.trackerNode!)
-                self.foundSurface = true //4
-            }
-            self.trackerNode?.position = position //5
-        }
-    }
-    
-}//
 extension ARSpaceInvadersController: SCNPhysicsContactDelegate {
     func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
         if (contact.nodeA.physicsBody?.categoryBitMask == CollisionCategory.target.rawValue && contact.nodeB.physicsBody?.categoryBitMask == CollisionCategory.bullet.rawValue) ||
@@ -222,7 +198,7 @@ extension ARSpaceInvadersController: SCNPhysicsContactDelegate {
             
             self.removeNodeWithAnimation(contact.nodeB, explosion: false)
             self.removeNodeWithAnimation(contact.nodeA, explosion: false)
-            //                self.userScore += 1
+            self.score += 1
             
             self.addNewAlien()
         }else if (contact.nodeA.physicsBody?.categoryBitMask == CollisionCategory.target.rawValue &&
@@ -232,17 +208,26 @@ extension ARSpaceInvadersController: SCNPhysicsContactDelegate {
             //Player was hit by target!
             print("Player Dead!")
             
-//            self.removeNodeWithAnimation(contact.nodeB, explosion: false)
-//            self.removeNodeWithAnimation(contact.nodeA, explosion: false)
-            
-            //                self.endPlaying()
+            if contact.nodeA.physicsBody?.categoryBitMask == CollisionCategory.target.rawValue {
+                self.removeNodeWithAnimation(contact.nodeA, explosion: false)
+                addNewAlien()
+            } else {
+                self.removeNodeWithAnimation(contact.nodeB, explosion: false)
+                addNewAlien()
+            }
         }
     }
 }
 
-extension ARSpaceInvadersController: ARSessionDelegate {
+extension ARSpaceInvadersController: ARSessionDelegate, ARSCNViewDelegate {
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         self.player?.position = self.getCameraPosition()
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+        if score > 20 {
+            print("END GAME")
+        }
     }
 }
 
@@ -286,5 +271,20 @@ extension ARSpaceInvadersController {
         let randomIndex = Int(arc4random_uniform(UInt32(array.count)))
         
         return array[randomIndex]
+    }
+    
+    func floatBetween(_ first: Float,  and second: Float) -> Float { // random float between upper and lower bound (inclusive)
+        return (Float(arc4random()) / Float(UInt32.max)) * (first - second) + second
+    }
+    
+    func getUserVector() -> (SCNVector3, SCNVector3) { // (direction, position)
+        if let frame = self.sceneView.session.currentFrame {
+            let mat = SCNMatrix4(frame.camera.transform) // 4x4 transform matrix describing camera in world space
+            let dir = SCNVector3(-1 * mat.m31, -1 * mat.m32, -1 * mat.m33) // orientation of camera in world space
+            let pos = SCNVector3(mat.m41, mat.m42, mat.m43) // location of camera in world space
+            
+            return (dir, pos)
+        }
+        return (SCNVector3(0, 0, -1), SCNVector3(0, 0, -0.2))
     }
 }

@@ -100,7 +100,7 @@ class Player {
     let velocity: Double = 1500
     let origin: CGPoint!
     
-    func startAccelerometers() {
+    func startAccelerometers(_ isInverted: Bool) {
         isMoving = true
         
         if self.motion.isAccelerometerAvailable {
@@ -112,7 +112,40 @@ class Player {
                    repeats: true, block: { (timer) in
                 // Get the accelerometer data.
                 if let data = self.motion.accelerometerData {
-                   let y = data.acceleration.y
+                   var y = data.acceleration.y
+                    
+                    if isInverted {
+                        y = y * -1
+                    }
+
+                   // Use the accelerometer data in your app.
+                    self.spriteNode.physicsBody?.velocity = CGVector(dx: y * self.velocity, dy: 0)
+                    self.yDirection = y
+                }
+             })
+
+             // Add the timer to the current run loop.
+            RunLoop.current.add(self.timer!, forMode: .default)
+          }
+    }
+    
+    func restartAccelerometers(_ isInverted: Bool) {
+        isMoving = true
+        
+        if self.motion.isAccelerometerAvailable {
+             self.motion.accelerometerUpdateInterval = 1.0 / 60.0  // 60 Hz
+             self.motion.startAccelerometerUpdates()
+
+             // Configure a timer to fetch the data.
+             self.timer = Timer(fire: Date(), interval: (1.0/60.0),
+                   repeats: true, block: { (timer) in
+                // Get the accelerometer data.
+                if let data = self.motion.accelerometerData {
+                   var y = data.acceleration.y
+                    
+                    if isInverted {
+                        y = y * -1
+                    }
 
                    // Use the accelerometer data in your app.
                     self.spriteNode.physicsBody?.velocity = CGVector(dx: y * self.velocity, dy: 0)
@@ -138,7 +171,7 @@ class ARPlayer: SCNNode {
         
         self.physicsField = SCNPhysicsField.electric()
         self.physicsField?.minimumDistance = 0
-        self.physicsField?.strength = 0.01
+        self.physicsField?.strength = 0.06
         
         self.physicsBody?.categoryBitMask = CollisionCategory.player.rawValue
         self.physicsBody?.contactTestBitMask = CollisionCategory.target.rawValue
