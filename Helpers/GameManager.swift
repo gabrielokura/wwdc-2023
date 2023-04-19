@@ -16,7 +16,7 @@ enum Scenes: String, Identifiable, CaseIterable {
 
 class GameManager: ObservableObject {
     // FIXME change this to Scenes.menu
-    @Published var selectedScene = Scenes.ARGame
+    @Published var selectedScene = Scenes.menu
     
     func goToScene(_ scene: Scenes) {
         selectedScene = scene

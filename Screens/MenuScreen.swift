@@ -30,6 +30,9 @@ class MenuScreen: SKScene, SKSceneDelegate {
     var orientationValue = 0
     var isLoading = false
     
+    var startGameSound = SKAction.playSoundFileNamed("start_game_sound.wav", waitForCompletion: false)
+    var insertCoinSound = SKAction.playSoundFileNamed("insert_coin_sound.wav", waitForCompletion: false)
+    
     override func didMove(to view: SKView) {
         self.delegate = self
         orientationValue = UIDevice.current.orientation.rawValue
@@ -55,9 +58,11 @@ class MenuScreen: SKScene, SKSceneDelegate {
         
         hideSecondaryNodes(true)
         
-        if orientationValue == 4 {
+        if orientationValue == 4 || orientationValue == 3{
             startGame()
         }
+        
+        self.run(startGameSound)
         
     }
     
@@ -71,7 +76,7 @@ class MenuScreen: SKScene, SKSceneDelegate {
         orientationValue = newValue
         print("orientation \(orientationValue)")
         
-        if orientationValue == 4 && !isLoading{
+        if ( orientationValue == 4 || orientationValue == 3) && !isLoading{
             startGame()
         }
     }
@@ -143,7 +148,12 @@ class MenuScreen: SKScene, SKSceneDelegate {
         }
         
         if canStartGame {
-            gameManager?.goToScene(.spaceInvaders)
+            self.run(insertCoinSound)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: { // remove/replace ship after half a second to visualize collision
+                self.gameManager?.goToScene(.spaceInvaders)
+            })
+            
         }
     }
     

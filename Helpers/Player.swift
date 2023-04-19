@@ -32,6 +32,8 @@ class Player {
     private var yDirection: Double = 0
     var isMoving = false
     
+    var fireSound = SKAction.playSoundFileNamed("arcade_player_bullet_sound.wav", waitForCompletion: false)
+    
     var direction: MovingDirection {
         get {
             
@@ -81,6 +83,7 @@ class Player {
         bullet.physicsBody?.velocity = CGVector(dx: 0, dy: Double(700))
         
         self.spriteNode.addChild(bullet)
+        self.spriteNode.run(fireSound)
     }
     
     func hitted() {

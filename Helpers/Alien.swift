@@ -37,14 +37,22 @@ class Alien {
     var shootingTexture: SKTexture!
     var originalTexture: SKTexture!
     
+    var explosionSound = SKAction.playSoundFileNamed("arcade_explosion_sound.wav", waitForCompletion: false)
+    var fireSound = SKAction.playSoundFileNamed("alien_shoot_sound.wav", waitForCompletion: false)
+    
+    var pontuation = 0
+    
     func checkType() -> SKTexture {
         let currentTexture = spriteNode.texture!
         
         if currentTexture.description.contains("Alien1") {
+            pontuation = 10
             return SKTexture(imageNamed: "Alien1_shooting")
         } else if currentTexture.description.contains("Alien2") {
+            pontuation = 20
             return SKTexture(imageNamed: "Alien2_shooting")
         } else {
+            pontuation = 50
             return SKTexture(imageNamed: "Alien3_shooting")
         }
  
@@ -103,6 +111,8 @@ class Alien {
         
         self.spriteNode.addChild(bullet)
         spriteNode.texture = originalTexture
+        
+        self.spriteNode.run(fireSound)
     }
     
     func hitted() {
@@ -114,6 +124,7 @@ class Alien {
         
         spriteNode.physicsBody = nil
         spriteNode.run(sequence)
+        spriteNode.run(explosionSound)
     }
 }
 

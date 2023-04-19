@@ -42,6 +42,14 @@ class SpaceInvadersScreen: SKScene, SKSceneDelegate, SKPhysicsContactDelegate {
     var isMovingAliens = false
     
     var orientationValue = 0
+    var canFire = true
+    
+    var scoreText: SKLabelNode!
+    var score: Int = 0
+    var lives = 99
+    var livesText: SKLabelNode!
+    
+    var gameOverSound = SKAction.playSoundFileNamed("gameover_sound.wav", waitForCompletion: false)
     
     override func didMove(to view: SKView) {
         setupAliensList()
@@ -50,6 +58,8 @@ class SpaceInvadersScreen: SKScene, SKSceneDelegate, SKPhysicsContactDelegate {
         player = Player(spriteNode: childNode(withName: "player") as? SKSpriteNode)
         
         hintText = childNode(withName: "hint_text") as? SKLabelNode
+        scoreText = childNode(withName: "score_text") as? SKLabelNode
+        livesText = childNode(withName: "lives_text") as? SKLabelNode
         dialogues = Dialogues(self, hintText)
         setupHintTextAnimation()
         
@@ -78,7 +88,7 @@ class SpaceInvadersScreen: SKScene, SKSceneDelegate, SKPhysicsContactDelegate {
         ipadHint.run(sequence) {
             if self.dialogues.phase == .learningAccelerometer {
                 
-                self.dialogues.nextDialogue()
+                self.dialogues.nextDialogue(false)
                 self.ipadHint.removeFromParent()
             }
         }
@@ -197,13 +207,14 @@ extension SpaceInvadersScreen {
         }
         
         if canMoveAliens {
-            print("Mover aliens para baixo no update")
             moveAliensDown()
         }
         
     }
     
     func goToNextMenu() {
+        
+        self.run(gameOverSound)
         
         let text = SKLabelNode(fontNamed: "Space-Invaders")
         text.text = "Something went wrong..."
@@ -252,7 +263,7 @@ extension SpaceInvadersScreen {
         }
         
         if dialogues.phase == .learningShoot {
-            dialogues.nextDialogue()
+            dialogues.nextDialogue(true)
             player.fire()
             interactionButton.texture = SKTexture(imageNamed: "button_pressed")
             
@@ -263,7 +274,7 @@ extension SpaceInvadersScreen {
         }
         
         if dialogues.isShowing {
-            dialogues.nextDialogue()
+            dialogues.nextDialogue(false)
             if dialogues.phase == .learningAccelerometer {
                 setupIpadHint()
                 player.startAccelerometers(orientationValue == 4 ? false : true)
@@ -272,7 +283,7 @@ extension SpaceInvadersScreen {
         }
         
         // shoot
-        player.fire()
+        self.playerFire()
         interactionButton.texture = SKTexture(imageNamed: "button_pressed")
     }
     
@@ -284,31 +295,43 @@ extension SpaceInvadersScreen {
         moveAliens()
         startAliensFire()
     }
+    
+    func playerFire() {
+        if !canFire {
+            return
+        }
+        
+        player.fire()
+        canFire = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: {
+            self.canFire = true
+        })
+    }
 }
 
 extension SpaceInvadersScreen {
     func didBegin(_ contact: SKPhysicsContact) {
         
         // check collision with screen's limits
-        if (contact.bodyA.node?.name!.contains("limit"))! {
+        if contact.bodyA.categoryBitMask == SceneCollisionCategory.limit {
             collisionWithLimit(contact.bodyB.node)
             return
-        } else if (contact.bodyB.node?.name!.contains("limit"))! {
+        } else if contact.bodyB.categoryBitMask == SceneCollisionCategory.limit {
             collisionWithLimit(contact.bodyA.node)
             return
         }
         
         // check collision between bullet and bullet
-        if (contact.bodyA.node?.name!.contains("bullet"))! && (contact.bodyB.node?.name!.contains("bullet"))! {
+        if (contact.bodyA.categoryBitMask == SceneCollisionCategory.alienBullet || contact.bodyA.categoryBitMask == SceneCollisionCategory.playerBullet) && (contact.bodyB.categoryBitMask == SceneCollisionCategory.alienBullet || contact.bodyB.categoryBitMask == SceneCollisionCategory.playerBullet) {
             contact.bodyA.node?.removeFromParent()
             contact.bodyB.node?.removeFromParent()
             return
         }
         
         // check collision between bullet and bodies
-        if (contact.bodyA.node?.name!.contains("bullet"))! {
+        if contact.bodyA.categoryBitMask == SceneCollisionCategory.alienBullet || contact.bodyA.categoryBitMask == SceneCollisionCategory.playerBullet{
             collisionBulletBody(contact.bodyB.node!, contact.bodyA.node!)
-        } else if (contact.bodyB.node?.name!.contains("bullet"))! {
+        } else if contact.bodyB.categoryBitMask == SceneCollisionCategory.alienBullet || contact.bodyB.categoryBitMask == SceneCollisionCategory.playerBullet {
             collisionBulletBody(contact.bodyA.node!, contact.bodyB.node!)
         }
         
@@ -324,12 +347,22 @@ extension SpaceInvadersScreen {
         
         if body.name == "player" {
             player.hitted()
+            
+            if lives == 0 {
+                return
+            }
+            
+            lives -= 1
+            livesText.text = "lives: \(lives)"
+            
         } else if body.name == "alien" {
             aliensList.removeAll { alien in
                 let condition = alien.spriteNode == body as? SKSpriteNode
                 if condition {
                     alien.hitted()
                     killsCounter += 1
+                    score = score + alien.pontuation
+                    scoreText.text = "score: \(score)"
                 }
                 
                 return condition

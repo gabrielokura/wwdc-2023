@@ -17,6 +17,8 @@ class Dialogues {
     var index = 0
     var hintText: SKLabelNode!
     
+    var passSound = SKAction.playSoundFileNamed("dialogue_sound.wav", waitForCompletion: false)
+    
     var isShowing: Bool {
         get {
             return index < dialogueNodes.count
@@ -41,9 +43,14 @@ class Dialogues {
         dialogueNodes.first?.isHidden = false
     }
     
-    func nextDialogue() {
+    func nextDialogue(_ muteSound: Bool) {
         print("current dialogue \(dialogueNodes[index].name!)")
         dialogueNodes[index].isHidden = true
+        
+        if !muteSound {
+            dialogueNodes[index].run(passSound)
+        }
+        
         index += 1
         
         switch index {
