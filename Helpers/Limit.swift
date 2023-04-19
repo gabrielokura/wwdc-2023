@@ -14,7 +14,7 @@ class ScreenLimit {
         node.physicsBody = SKPhysicsBody(rectangleOf: node.frame.size)
         node.physicsBody?.categoryBitMask = SceneCollisionCategory.limit
         node.physicsBody?.collisionBitMask = SceneCollisionCategory.alienBullet | SceneCollisionCategory.alien | SceneCollisionCategory.player
-        node.physicsBody?.contactTestBitMask = SceneCollisionCategory.alienBullet | SceneCollisionCategory.player
+        node.physicsBody?.contactTestBitMask = SceneCollisionCategory.alienBullet | SceneCollisionCategory.player | SceneCollisionCategory.alien
         node.physicsBody?.node?.name = "limit"
         node.physicsBody?.affectedByGravity = false
         node.physicsBody?.allowsRotation = false

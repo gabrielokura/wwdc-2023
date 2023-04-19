@@ -8,11 +8,9 @@
 struct CollisionCategory: OptionSet {
     let rawValue: Int
     
-    static let alienBullet  = CollisionCategory(rawValue: 1 << 0) // 00...01
-    static let playerBullet = CollisionCategory(rawValue: 1 << 1)
-    static let alien = CollisionCategory(rawValue: 1 << 2) // 00..10
+    static let bullet  = CollisionCategory(rawValue: 1 << 0) // 00...01
     static let player = CollisionCategory(rawValue: 1 << 3)
-    static let limit = CollisionCategory(rawValue: 1 << 4)
+    static let target = CollisionCategory(rawValue: 1 << 5)
 }
 
 struct SceneCollisionCategory {

@@ -6,12 +6,10 @@
       "scale" : "1x"
     },
     {
-      "filename" : "Alien1_idle@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Alien1_idle@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

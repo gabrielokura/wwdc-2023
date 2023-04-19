@@ -16,8 +16,11 @@ class Bullet: SCNNode {
         self.physicsBody = SCNPhysicsBody(type: .dynamic, shape: shape)
         self.physicsBody?.isAffectedByGravity = false
         
-        self.physicsBody?.categoryBitMask = CollisionCategory.playerBullet.rawValue
-        self.physicsBody?.contactTestBitMask = CollisionCategory.alien.rawValue
+        self.physicsBody?.categoryBitMask = CollisionCategory.bullet.rawValue
+        self.physicsBody?.contactTestBitMask = CollisionCategory.target.rawValue
+        self.physicsBody?.collisionBitMask = CollisionCategory.player.rawValue
+        
+        self.name = "player_bullet"
         
         // add texture
         let material = SCNMaterial()

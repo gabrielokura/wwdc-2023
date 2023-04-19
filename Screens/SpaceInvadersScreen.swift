@@ -39,6 +39,7 @@ class SpaceInvadersScreen: SKScene, SKSceneDelegate, SKPhysicsContactDelegate {
     var killsCounter = 0
     
     var canMoveAliens = false
+    var isMovingAliens = false
     
     override func didMove(to view: SKView) {
         setupAliensList()
@@ -50,10 +51,7 @@ class SpaceInvadersScreen: SKScene, SKSceneDelegate, SKPhysicsContactDelegate {
         dialogues = Dialogues(self, hintText)
         setupHintTextAnimation()
         
-        
-        
         self.physicsWorld.contactDelegate = self
-        //        player.startAccelerometers()
     }
     
     func setupIpadHint() {
@@ -122,7 +120,7 @@ class SpaceInvadersScreen: SKScene, SKSceneDelegate, SKPhysicsContactDelegate {
         var alienList = [Alien]()
         
         for alienNode in node.children {
-            let newAlien = Alien(spriteNode: alienNode as? SKSpriteNode, receiveLimitEvents: alienNode.name == "first" || alienNode.name == "last")
+            let newAlien = Alien(spriteNode: alienNode as? SKSpriteNode)
             alienList.append(newAlien)
         }
         
@@ -142,9 +140,21 @@ class SpaceInvadersScreen: SKScene, SKSceneDelegate, SKPhysicsContactDelegate {
 
 extension SpaceInvadersScreen {
     func moveAliensDown() {
+        
+        if isMovingAliens {
+           return
+        }
+        
+        isMovingAliens = true
+        canMoveAliens = false
+        
         for alien in aliensList {
             alien.moveDown()
         }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+            self.isMovingAliens = false
+        })
     }
     
     func moveAliens() {
@@ -174,17 +184,17 @@ extension SpaceInvadersScreen {
     
     override func update(_ currentTime: TimeInterval) {
         
-        if killsCounter >= 40 {
+        if killsCounter >= 35 {
             goToNextMenu()
-        }
-        
-        if canMoveAliens {
-            moveAliensDown()
-            canMoveAliens = false
         }
         
         if player.isMoving {
             animateJoystick(player.direction)
+        }
+        
+        if canMoveAliens {
+            print("Mover aliens para baixo no update")
+            moveAliensDown()
         }
         
     }
@@ -207,7 +217,20 @@ extension SpaceInvadersScreen {
         self.addChild(text)
         self.addChild(text2)
         
-        text.run(SKAction.wait(forDuration: TimeInterval(7))) {
+        let zoomInXAction = SKAction.scaleX(to: 0.0001, duration: TimeInterval(1.5))
+        let zoomInYAction = SKAction.scaleY(to: 0.0001, duration: TimeInterval(1.5))
+        
+        let group = SKAction.group([zoomInXAction, zoomInYAction])
+        
+        let cameraNode = childNode(withName: "camera") as? SKCameraNode
+        let sequence = SKAction.sequence([SKAction.wait(forDuration: TimeInterval(4)), group])
+        
+        if cameraNode == nil {
+            print("Camera not Found")
+            return;
+        }
+        
+        cameraNode!.run(sequence) {
             self.gameManager?.goToScene(.menuAR)
             self.removeAllChildren()
         }
@@ -295,7 +318,7 @@ extension SpaceInvadersScreen {
         
         if !bullet.name!.contains("limit") {
             bullet.removeFromParent()
-        } 
+        }
         
         if body.name == "player" {
             player.hitted()
@@ -321,8 +344,8 @@ extension SpaceInvadersScreen {
         }
         
         if body!.name == "alien" {
-            print("moving aliens down")
-            self.canMoveAliens = true
+            print("Aliens encostaram no limite")
+            canMoveAliens = true
             return
         }
         

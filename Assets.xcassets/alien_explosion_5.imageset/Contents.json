@@ -6,12 +6,10 @@
       "scale" : "1x"
     },
     {
-      "filename" : "alien_explosion_5@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "alien_explosion_5@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

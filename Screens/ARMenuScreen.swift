@@ -12,6 +12,8 @@ class ARMenuScreen: SKScene, SKSceneDelegate {
     weak var gameManager: GameManager?
     var canOpenGame = false
     var isOpening = false
+    var isFirstTouch = true
+    var dialogueBox: SKSpriteNode!
     
     static func buildScene(_ gameManager: GameManager!) -> ARMenuScreen{
         let scene = ARMenuScreen(fileNamed: "ARMenuScreen")!
@@ -21,18 +23,32 @@ class ARMenuScreen: SKScene, SKSceneDelegate {
     }
     
     override func didMove(to view: SKView) {
-        showDialogue()
+        dialogueBox = childNode(withName: "dialogue") as? SKSpriteNode
+        dialogueBox.isHidden = true
     }
     
-    func showDialogue() {
-        canOpenGame = true
-    }
-    
-    func setupZoomAnimation() {
+    func setupFirstZoom() {
         print("zooming")
+        
+        let zoomInXAction = SKAction.scaleX(to: 0.82, duration: TimeInterval(1))
+        let zoomInYAction = SKAction.scaleY(to: 0.82, duration: TimeInterval(1))
+        
+        let group = SKAction.group([zoomInXAction, zoomInYAction])
+        
+        let cameraNode = childNode(withName: "camera") as! SKCameraNode
+        
+        print("camera node: \(cameraNode)")
+        cameraNode.run(group) {
+            self.dialogueBox.isHidden = false
+            self.canOpenGame = true
+            self.isFirstTouch = false
+        }
+    }
+    func setupZoomAnimation() {
+        print("zooming parte 2")
         isOpening = true
         
-        let waitAction = SKAction.wait(forDuration: TimeInterval(3))
+        let waitAction = SKAction.wait(forDuration: TimeInterval(0.5))
         let zoomInXAction = SKAction.scaleX(to: 0.05, duration: TimeInterval(1))
         let zoomInYAction = SKAction.scaleY(to: 0.05, duration: TimeInterval(1))
         
@@ -42,10 +58,18 @@ class ARMenuScreen: SKScene, SKSceneDelegate {
         let cameraNode = childNode(withName: "camera") as! SKCameraNode
         
         print("camera node: \(cameraNode)")
-        cameraNode.run(sequence)
+        cameraNode.run(sequence) {
+            self.gameManager?.goToScene(.ARGame)
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        if isFirstTouch {
+            setupFirstZoom()
+            return
+        }
+        
         if canOpenGame && !isOpening {
             setupZoomAnimation()
         }

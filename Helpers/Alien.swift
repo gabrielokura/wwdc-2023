@@ -6,22 +6,19 @@
 //
 
 import SpriteKit
+import SceneKit
 
 class Alien {
     let spriteNode: SKSpriteNode!
     
-    init(spriteNode: SKSpriteNode!, receiveLimitEvents: Bool) {
+    init(spriteNode: SKSpriteNode!) {
         spriteNode.physicsBody = SKPhysicsBody(rectangleOf: spriteNode.size)
         spriteNode.physicsBody?.allowsRotation = false
         spriteNode.physicsBody?.affectedByGravity = false
         spriteNode.physicsBody?.categoryBitMask = SceneCollisionCategory.alien
+
+        spriteNode.physicsBody?.contactTestBitMask =  SceneCollisionCategory.playerBullet | SceneCollisionCategory.limit
         
-        if receiveLimitEvents {
-            print("alien recebe eventos de limite")
-            spriteNode.physicsBody?.contactTestBitMask = SceneCollisionCategory.limit | SceneCollisionCategory.playerBullet
-        } else  {
-            spriteNode.physicsBody?.contactTestBitMask =  SceneCollisionCategory.playerBullet
-        }
         spriteNode.physicsBody?.collisionBitMask = SceneCollisionCategory.playerBullet
         spriteNode.physicsBody?.node?.name = "alien"
         self.spriteNode = spriteNode
@@ -117,5 +114,38 @@ class Alien {
         
         spriteNode.physicsBody = nil
         spriteNode.run(sequence)
+    }
+}
+
+
+
+class ARAlien {
+    var node: SCNNode!
+    
+    init() {
+        guard let alienScene = SCNScene(named: "Aliens.scn") else {
+            return
+        }
+        guard let alienNode = alienScene.rootNode.childNodes.first else {
+            return
+        }
+        
+        alienNode.physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
+        alienNode.physicsBody?.categoryBitMask = CollisionCategory.target.rawValue
+        alienNode.physicsBody?.contactTestBitMask = CollisionCategory.bullet.rawValue
+        alienNode.physicsBody?.collisionBitMask = CollisionCategory.target.rawValue
+        alienNode.physicsBody?.isAffectedByGravity = false
+        alienNode.physicsBody?.charge = -1
+        
+        // add texture
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor(.red)
+        alienNode.geometry?.materials  = [material, material, material, material, material, material]
+        
+        node = alienNode
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

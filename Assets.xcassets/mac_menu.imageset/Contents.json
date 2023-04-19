@@ -6,12 +6,10 @@
       "scale" : "1x"
     },
     {
-      "filename" : "mac_menu@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "mac_menu@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

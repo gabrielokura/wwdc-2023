@@ -4,13 +4,13 @@
 //
 //  Created by Gabriel Motelevicz Okura on 15/04/23.
 //
-
-import RealityKit
-import Combine
-
+//
+//import SceneKit
+//import Combine
+//
 //class ARModel {
 //    var modelName: String
-//    var modelEntity: Entity?
+//    var modelNode: SCNNode?
 //    
 //    private var cancellable: AnyCancellable? = nil
 //    

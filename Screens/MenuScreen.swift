@@ -24,13 +24,25 @@ class MenuScreen: SKScene, SKSceneDelegate {
     var spaceship: SKSpriteNode!
     var startText: SKSpriteNode!
     var loadingText: SKLabelNode!
+    var orientationHint: SKSpriteNode!
     var timer: Timer!
     var canStartGame = false
+    var orientationValue = 0
+    var isLoading = false
     
     override func didMove(to view: SKView) {
         self.delegate = self
+        orientationValue = UIDevice.current.orientation.rawValue
+        print("orientation \(orientationValue)")
+        
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        NotificationCenter.default.addObserver(self, selector: #selector(didChangeDeviceOrientation), name: UIDevice.orientationDidChangeNotification, object: nil)
         
         setupNodes()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     fileprivate func setupNodes() {
@@ -39,8 +51,34 @@ class MenuScreen: SKScene, SKSceneDelegate {
         startText = childNode(withName: "start_text") as? SKSpriteNode
         gameTitle = childNode(withName: "title") as? SKSpriteNode
         spaceship = childNode(withName: "spaceship") as? SKSpriteNode
+        orientationHint = childNode(withName: "orientation_hint") as? SKSpriteNode
         
         hideSecondaryNodes(true)
+        
+        if orientationValue == 4 {
+            startGame()
+        }
+        
+    }
+    
+    @objc func didChangeDeviceOrientation() {
+        
+        let newValue = UIDevice.current.orientation.rawValue
+        if newValue == 0 {
+            return
+        }
+        
+        orientationValue = newValue
+        print("orientation \(orientationValue)")
+        
+        if orientationValue == 4 && !isLoading{
+            startGame()
+        }
+    }
+    
+    func startGame() {
+        orientationHint.isHidden = true
+        isLoading = true
         setupLoadingAnimation()
         setupZoomAnimation()
     }
@@ -96,6 +134,14 @@ class MenuScreen: SKScene, SKSceneDelegate {
     }
     
     func touchDown (pos: CGPoint) {
+        
+        if !orientationHint.isHidden {
+            orientationHint.isHidden = true
+            setupLoadingAnimation()
+            setupZoomAnimation()
+            return
+        }
+        
         if canStartGame {
             gameManager?.goToScene(.spaceInvaders)
         }
