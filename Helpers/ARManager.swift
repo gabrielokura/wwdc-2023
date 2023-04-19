@@ -7,19 +7,15 @@
 
 import Combine
 
-class ARManager: ObservableObject {    
+class ARManager: ObservableObject {
     init() {}
     
     var actionStream = PassthroughSubject<ARAction, Never>()
     
-    @Published var canPlaceObject = false
-    @Published var isPlaced = false
+    @Published var isPlaying = false
     
-    func canPlace(_ canPlace: Bool) {
-        canPlaceObject = canPlace
-    }
     
-    func placeObject() {
-        isPlaced = true
+    func startGame() {
+        isPlaying = true
     }
 }

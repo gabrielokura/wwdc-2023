@@ -15,29 +15,24 @@ struct MyARView: View {
     
     var body: some View {
         ZStack (alignment: .bottom) {
-            ARSpaceInvadersViewRepresentable()
-            
-//            if manager.isPlaced {
-//                Text("Tap in yout screen to shot on aliens")
-//            } else {
-//                switch manager.canPlaceObject {
-//                case true:
-//                    Button {
-//                        manager.actionStream.send(.start)
-//                    } label: {
-//                        Text("START")
-//                            .frame(width: 100, height: 40, alignment: .center)
-//                            .foregroundColor(.red)
-//                    }
-//                    .padding()
-//                    .frame(alignment: .bottom)
-//                case false:
-//                    Text("Please find a horizontal plane to start the game")
-//                        .frame(alignment: .center)
-//                }
-//            }
+            ARSpaceInvadersViewRepresentable(gameManger: manager)
+            if !manager.isPlaying {
+                VStack {
+                    Text("Kill all the Invaders before they reach you").font(.custom("MachineStd", size: 40))
+                    Button {
+                        manager.actionStream.send(.start)
+                    } label: {
+                        Text("START")
+                            .frame(width: 100, height: 40, alignment: .center)
+                            .foregroundColor(.red)
+                            .font(.custom("MachineStd", size: 30))
+                    }
+                    .padding()
+                    .frame(alignment: .bottom)
+                }
+            } else {
+                Text("Tao the screen to shoot").font(.custom("MachineStd", size: 40))
+            }
         }
-        
-        
     }
 }

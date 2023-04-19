@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum Scenes: String, Identifiable, CaseIterable {
-    case menu, spaceInvaders, ARGame, menuAR
+    case menu, spaceInvaders, ARGame, menuAR, end
     
     var id: String { self.rawValue }
 }

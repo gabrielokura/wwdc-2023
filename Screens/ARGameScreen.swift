@@ -10,11 +10,21 @@ import ARKit
 import SwiftUI
 
 struct ARSpaceInvadersViewRepresentable: UIViewControllerRepresentable {
-    func makeUIViewController(context: Context) -> some ARSpaceInvadersController {
-        return ARSpaceInvadersController()
+    var gameManger: ARManager!
+    
+    init(gameManger: ARManager!) {
+        self.gameManger = gameManger
     }
     
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
+    func makeUIViewController(context: Context) -> some ARSpaceInvadersController {
+        let controller = ARSpaceInvadersController()
+        controller.gameManager = gameManger
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+        
+    }
 }
 
 class ARSpaceInvadersController: UIViewController {
@@ -25,6 +35,8 @@ class ARSpaceInvadersController: UIViewController {
     var foundSurface = false
     var alien: ARAlien!
     var player: ARPlayer!
+    
+    var gameManager: ARManager?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,6 +58,10 @@ class ARSpaceInvadersController: UIViewController {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = [.horizontal]
+        
+        if ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) {
+            configuration.sceneReconstruction = .mesh
+        }
         
         // Run the view's session
         sceneView.session.run(configuration)

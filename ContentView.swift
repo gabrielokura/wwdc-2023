@@ -15,6 +15,8 @@ struct ContentView: View {
                 SpaceInvadersView(gameManager: gameManager)
             case .menuAR:
                 ARMenuView(gameManager: gameManager)
+            case .end:
+                EndScreenView()
             }
         }
     }
