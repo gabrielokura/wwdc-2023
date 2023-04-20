@@ -29,8 +29,14 @@ class ARSpaceInvadersController: UIViewController {
     var isPlaying = false
     var score = 0
     
+    var firstKill = true
     
-    var arManager: ARManager?
+    var charge: CGFloat = -1
+    var arManager: ARManager = ARManager.shared
+    
+    var tapSound = SCNAudioSource(fileNamed: "tap_arcade_sound.wav")
+    var fireSound = SCNAudioSource(fileNamed: "ar_fire_sound.m4a")
+    var explosionSound = SCNAudioSource(fileNamed: "arcade_explosion_sound.wav")
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -123,7 +129,7 @@ class ARSpaceInvadersController: UIViewController {
     func subscribeToActions() {
         print("subscribing...")
         
-        ARManager.shared.actionStream.sink { action in
+        arManager.actionStream.sink { action in
             print("action \(action)")
             self.startGame()
         }
@@ -150,10 +156,11 @@ class ARSpaceInvadersController: UIViewController {
         
         let posX = getCameraPosition().x + floatBetween(-2, and: 2)
         let posY = getCameraPosition().y - 0.1
-        alienNode.position = SCNVector3(posX, posY, -4) // SceneKit/AR coordinates are in meters
+        alienNode.position = SCNVector3(posX, posY, -4)
+        alienNode.physicsBody?.charge = charge// SceneKit/AR coordinates are in meters
         sceneView.scene.rootNode.addChildNode(alienNode)
         
-//        self.directNodeTowardCamera(alienNode)
+        charge -= 0.1
     }
     
     func addPlayer() {
@@ -181,24 +188,46 @@ class ARSpaceInvadersController: UIViewController {
         bulletsNode.physicsBody?.applyForce(bulletDirection, asImpulse: true)
         sceneView.scene.rootNode.addChildNode(bulletsNode)
         
+        if fireSound != nil {
+            self.player.runAction(SCNAction.playAudio(fireSound!, waitForCompletion: false))
+        }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: { // remove/replace ship after half a second to visualize collision
             self.removeNodeWithAnimation(bulletsNode, explosion: false)
         })
+    }
+
+    func setFirstKill() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double(0.1)) {
+            self.arManager.isFirstAlienKilled = true
+        }
+        firstKill = false
     }
     
     
 }
 
 extension ARSpaceInvadersController: SCNPhysicsContactDelegate {
+    
     func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
         if (contact.nodeA.physicsBody?.categoryBitMask == CollisionCategory.target.rawValue && contact.nodeB.physicsBody?.categoryBitMask == CollisionCategory.bullet.rawValue) ||
             (contact.nodeA.physicsBody?.categoryBitMask == CollisionCategory.bullet.rawValue && contact.nodeB.physicsBody?.categoryBitMask == CollisionCategory.target.rawValue){
             //target was hit from bullet!
             print("Hit target!")
             
+            if explosionSound != nil {
+                self.sceneView.scene.rootNode.runAction(SCNAction.playAudio(explosionSound!, waitForCompletion: false))
+            }
+            
             self.removeNodeWithAnimation(contact.nodeB, explosion: false)
             self.removeNodeWithAnimation(contact.nodeA, explosion: false)
-            self.score += 1
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(0.1)) {
+                self.arManager.sumScore(10)
+            }
+            
+            if firstKill {
+                setFirstKill()
+            }
             
             self.addNewAlien()
         }else if (contact.nodeA.physicsBody?.categoryBitMask == CollisionCategory.target.rawValue &&

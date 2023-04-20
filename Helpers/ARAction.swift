@@ -6,6 +6,6 @@
 //
 
 enum ARAction {
-    case start
+    case start, firstKill, incrementScore
 }
 

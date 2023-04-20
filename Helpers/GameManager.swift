@@ -32,8 +32,14 @@ class ARManager: ObservableObject {
     var actionStream = PassthroughSubject<ARAction, Never>()
     
     @Published var isPlaying = false
+    
     @Published var hintText = ""
+    
+    @MainActor
     @Published var isFirstAlienKilled = false
+    
+    @MainActor
+    @Published var score = 0
     
     func startGame() {
         isPlaying = true
@@ -42,5 +48,13 @@ class ARManager: ObservableObject {
     
     func updateText(_ text: String) {
         hintText = text
+    }
+    
+    @MainActor func sumScore(_ value: Int) {
+        score += value
+    }
+    
+    @MainActor func firstKill() {
+        isFirstAlienKilled = true
     }
 }

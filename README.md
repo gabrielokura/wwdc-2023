@@ -33,6 +33,12 @@ Provided by ProjectsU012 on FreeSound, can be founded in this [link](https://fre
 ### insert_coin_sound.wav
 Provided by EdgardEdition on FreeSound, can be founded in this [link](https://freesound.org/people/EdgardEdition/sounds/113095/).
 
+### ar_fire_sound.wav
+Provided by bolkmar on FreeSound, can be founded in this [link](https://freesound.org/people/bolkmar/sounds/420365/).
+
+### ar_explosion_sound.wav
+Provided by timgormly on FreeSound, can be founded in this [link](https://freesound.org/people/timgormly/sounds/170144/).
+
 ## Public domain fonts
 
 

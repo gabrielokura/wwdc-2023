@@ -303,7 +303,7 @@ extension SpaceInvadersScreen {
         
         player.fire()
         canFire = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
             self.canFire = true
         })
     }
