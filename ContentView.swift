@@ -2,7 +2,7 @@ import SwiftUI
 import RealityKit
 
 struct ContentView: View {
-    @StateObject var gameManager = GameManager()
+    @StateObject var gameManager = GameManager.shared
     
     var body: some View {
         ZStack {

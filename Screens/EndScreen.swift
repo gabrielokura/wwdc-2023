@@ -14,5 +14,11 @@ class EndScreen: SKScene {
         scene.scaleMode = .fill
         return scene
     }
+    
+    override func sceneDidLoad() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double(5)) {
+            GameManager.shared.goToScene(.menu)
+        }
+    }
 }
     

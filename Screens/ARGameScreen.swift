@@ -40,7 +40,7 @@ class ARSpaceInvadersController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupScene()
+        self.setupScene()
     }
     
     override func loadView() {
@@ -131,6 +131,7 @@ class ARSpaceInvadersController: UIViewController {
         
         arManager.actionStream.sink { action in
             print("action \(action)")
+            
             self.startGame()
         }
         .store(in: &cancellable)
@@ -141,8 +142,9 @@ class ARSpaceInvadersController: UIViewController {
         
         print("First alien")
         
-        let posX = Float(0)
+        let posX = getCameraPosition().x
         let posY = getCameraPosition().y - 0.1
+        
         alienNode.position = SCNVector3(posX, posY, -2)
         alienNode.physicsBody?.charge = 0
         sceneView.scene.rootNode.addChildNode(alienNode)
@@ -224,6 +226,20 @@ extension ARSpaceInvadersController: SCNPhysicsContactDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(0.1)) {
                 self.arManager.sumScore(10)
             }
+            self.score += 10
+            
+            if score > 220 {
+                print("END GAME")
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(0.1)) {
+                    self.arManager.finishGame()
+                    self.sceneView.scene.rootNode.removeFromParentNode()
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(2)) {
+                    GameManager.shared.goToScene(.end)
+                }
+                return
+            }
             
             if firstKill {
                 setFirstKill()
@@ -252,12 +268,6 @@ extension ARSpaceInvadersController: ARSessionDelegate, ARSCNViewDelegate {
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         self.player?.position = self.getCameraPosition()
     }
-    
-    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
-        if score > 20 {
-            print("END GAME")
-        }
-    }
 }
 
 extension ARSpaceInvadersController {
@@ -276,22 +286,6 @@ extension ARSpaceInvadersController {
     func getCameraPosition() -> SCNVector3 {
         let (_ , position) = self.getCameraVector()
         return position
-    }
-    
-    func directNodeTowardCamera(_ node: SCNNode) {
-        node.physicsBody?.clearAllForces()
-        //Make cube node go towards camera
-        let (_, playerPosition) = self.getCameraVector()
-        let impulseVector = SCNVector3(
-            x: self.randomOneOfTwoInputFloats(-0.50, and: 0.50),
-            y: playerPosition.y,
-            z: playerPosition.z
-        )
-        
-        //Makes generated nodes rotate when applied with force
-        let positionOnNodeToApplyForceTo = SCNVector3(x: 0.005, y: 0.005, z: 0.005)
-        
-        node.physicsBody?.applyForce(impulseVector, at: positionOnNodeToApplyForceTo, asImpulse: true)
     }
     
     

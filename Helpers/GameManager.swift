@@ -15,8 +15,11 @@ enum Scenes: String, Identifiable, CaseIterable {
 }
 
 class GameManager: ObservableObject {
+    
+    static var shared = GameManager()
+    
     // FIXME change this to Scenes.menu
-    @Published var selectedScene = Scenes.menu
+    @Published var selectedScene = Scenes.ARGame
     
     func goToScene(_ scene: Scenes) {
         selectedScene = scene
@@ -35,11 +38,11 @@ class ARManager: ObservableObject {
     
     @Published var hintText = ""
     
-    @MainActor
     @Published var isFirstAlienKilled = false
     
-    @MainActor
     @Published var score = 0
+    
+    @Published var isEnded = false
     
     func startGame() {
         isPlaying = true
@@ -50,11 +53,15 @@ class ARManager: ObservableObject {
         hintText = text
     }
     
-    @MainActor func sumScore(_ value: Int) {
+    func sumScore(_ value: Int) {
         score += value
     }
     
-    @MainActor func firstKill() {
+    func firstKill() {
         isFirstAlienKilled = true
+    }
+    
+    func finishGame() {
+        isEnded = true
     }
 }
