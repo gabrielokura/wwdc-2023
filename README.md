@@ -1,4 +1,8 @@
-# Time Invaders
+# Time Invaders - Swift Student Challenge 2023 WINNER.
+
+For this project, I started using SpriteKit for the first part and Reality Kit for the second part. Reality Kit with Reality Composer is awesome to display 3D models in an augmented reality view. But when I needed to work with angles, the framework wasn't enough and it became much harder. So I switched to SceneKit (which already has more physics functions to create 3D games).
+
+Tech Stack: SpriteKit, SceneKit, ARKit, SwiftUI, AVFoundation, Combine.
 
 Not for comercial purposes.
 
