@@ -6,6 +6,10 @@ Tech Stack: SpriteKit, SceneKit, ARKit, SwiftUI, AVFoundation, Combine.
 
 Not for comercial purposes.
 
+## Gameplay video
+
+https://youtu.be/ePQRkg4Kh_g
+
 ## Public domain sounds 
 A quickly explanation about the sounds files in Resources/Sounds
 
